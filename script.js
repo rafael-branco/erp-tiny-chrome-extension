@@ -12,10 +12,17 @@ function clickOnSelectAll() {
 }
 
 function getNavTabs() {
-    ecommerces = document.querySelectorAll(
+    let ecommerces = document.querySelectorAll(
         ".nav-tabs-scroll ul li:not(.dropdown) a"
     );
     return ecommerces;
+}
+
+function goToNextPage(){
+    let nextPageButton = document.querySelector(
+        ".bottom-bar .pnext a.link-pg.pg-n-selec"
+    );
+    nextPageButton.click();
 }
 
 function addAlert() {
@@ -55,22 +62,48 @@ function addAlert() {
 }
 
 function removeAlert(){
-    alertElement = document.querySelector('#automation-alert');
+    let alertElement = document.querySelector('#automation-alert');
     alertElement.remove();
 }
 
 function receiveOrders(){
-    receiveOrdersButton = document.querySelector('button.btn.featured-action.prevent-dbclick.has-tipsy-top.btn-primary');
+    let receiveOrdersButton = document.querySelector('button.btn.featured-action.prevent-dbclick.has-tipsy-top.btn-primary');
     receiveOrdersButton.click();
 }
 
 function closeModal(){
-    closeModalButton = document.querySelector('#bs-modal #modalPedidosEcommerceLote button.btn.btn-default.btn-ghost');
+    let closeModalButton = document.querySelector('#bs-modal #modalPedidosEcommerceLote button.btn.btn-default.btn-ghost');
     closeModalButton.click();
 }
 
+function isOrderGeneratorComplete() {
+    let checkItems = document.querySelectorAll('.modal-body table tbody tr td:nth-child(4)');
+  
+    for (let item of checkItems) {
+      if (item.querySelector('.fa.fa-fw.fa-spinner.fa-spin')) {
+        return false; // Found a spinner, not complete
+      }
+    }
+    return true; // No spinner found, assume complete
+}
+
+async function waitForOrderGenerationCompletion() {
+    return new Promise((resolve, reject) => {
+        const interval = setInterval(() => {
+            if (isOrderGeneratorComplete()) {
+                console.log("Order Generation Completed!");
+                clearInterval(interval);
+                resolve();
+            }else{
+                console.log("Order Generation in Progress!");
+            }
+            // The interval will continue until isOrderGeneratorComplete() returns true
+        }, 3000); // Check every 3 seconds
+    });
+}
+
 window.addEventListener("load", async function () {
-    target_url = "https://erp.tiny.com.br/lista_pedidos_ecommerce";
+    let target_url = "https://erp.tiny.com.br/lista_pedidos_ecommerce";
 
     await sleep(5000);
 
@@ -93,9 +126,9 @@ window.addEventListener("load", async function () {
                 await sleep(3000);
 
                 receiveOrders();
-                await sleep(5000);
                 console.log('Orders receive button clicked!');
-                
+
+                await waitForOrderGenerationCompletion();
                 closeModal();
                 await sleep(3000);
                 console.log('Orders received!');
