@@ -66,9 +66,18 @@ function removeAlert(){
     alertElement.remove();
 }
 
-function receiveOrders(){
+async function receiveOrders(){
     let receiveOrdersButton = document.querySelector('button.btn.featured-action.prevent-dbclick.has-tipsy-top.btn-primary');
-    receiveOrdersButton.click();
+    if(!receiveOrdersButton){
+        let moreActions = document.querySelector('.dropdown.dropup.dropdown-in.featured-actions-menu button.btn.btn-menu-acoes.dropdown-toggle');
+        moreActions.click();
+        await sleep(1000);
+        let secondReceiveOrdersButton = document.querySelector('.btnImportarPedidosSelecionados');
+        secondReceiveOrdersButton.click();
+    }else{
+        receiveOrdersButton.click();
+    }
+    
 }
 
 function closeModal(){
@@ -135,6 +144,7 @@ window.addEventListener("load", async function () {
                 await waitForOrderGenerationCompletion();
                 closeModal();
                 await sleep(3000);
+
                 console.log('Orders received!');
             } else {
                 console.log("Data does NOT exists!");
