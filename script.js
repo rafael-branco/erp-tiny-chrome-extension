@@ -81,10 +81,10 @@ function isOrderGeneratorComplete() {
   
     for (let item of checkItems) {
       if (item.querySelector('.fa.fa-fw.fa-spinner.fa-spin')) {
-        return false; // Found a spinner, not complete
+        return false;
       }
     }
-    return true; // No spinner found, assume complete
+    return true;
 }
 
 async function waitForOrderGenerationCompletion() {
@@ -97,24 +97,28 @@ async function waitForOrderGenerationCompletion() {
             }else{
                 console.log("Order Generation in Progress!");
             }
-            // The interval will continue until isOrderGeneratorComplete() returns true
-        }, 3000); // Check every 3 seconds
+        }, 3000);
     });
 }
 
+
+
 window.addEventListener("load", async function () {
     let target_url = "https://erp.tiny.com.br/lista_pedidos_ecommerce";
-
+    
+    console.log('Starting automation loop...');
+    addAlert();
     await sleep(5000);
 
     if (window.location.href != target_url) {
         window.location.href = target_url;
         console.log("Tiny Automation: Done!");
     } else {
-        addAlert();
+        
         await sleep(2000);
         ecommerces = getNavTabs();
 
+        // Add a 3 second repetition
         for (let i = 0; i < ecommerces.length; i++) {
             ecommerces[i].click();
             await sleep(5000);
@@ -138,6 +142,10 @@ window.addEventListener("load", async function () {
         }
     }
 
-    console.log('Automation finished!');
-    removeAlert();
+    console.log('Wait for 3 minutes...');
+    await sleep(180000);
+    console.log('Time is up!');
+    console.log('Automation loop finished!');
+    console.log('Starting again...');
+    window.location.href = target_url;
 });
