@@ -9,7 +9,8 @@
           "script.js"
         ],
         "matches": [
-          "https://erp.tiny.com.br/*"
+          "https://erp.tiny.com.br/*",
+          "https://accounts.tiny.com.br/*"
         ]
       }
     ]

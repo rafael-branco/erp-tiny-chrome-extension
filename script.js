@@ -1,5 +1,16 @@
 var sleepSetTimeout_ctrl;
 
+console.log("Overriding alert and confirm functions!");
+window.alert = function(){
+    console.log("Alert!");
+};
+window.confirm = function(){
+    console.log("Confirm!");
+    return true;
+};
+console.log("Overrided!");
+
+
 function sleep(ms) {
     clearInterval(sleepSetTimeout_ctrl);
     return new Promise(
@@ -8,7 +19,13 @@ function sleep(ms) {
 }
 
 function clickOnSelectAll() {
-    document.querySelector("#tbdados thead th input").click();
+    let selectAll = document.querySelector("#tbdados thead th input");
+    if (!selectAll) {
+        location.reload();
+    } else {
+        selectAll.click();
+    }
+
 }
 
 function getNavTabs() {
@@ -18,7 +35,7 @@ function getNavTabs() {
     return ecommerces;
 }
 
-function goToNextPage(){
+function goToNextPage() {
     let nextPageButton = document.querySelector(
         ".bottom-bar .pnext a.link-pg.pg-n-selec"
     );
@@ -61,39 +78,82 @@ function addAlert() {
     }
 }
 
-function removeAlert(){
+function removeAlert() {
     let alertElement = document.querySelector('#automation-alert');
     alertElement.remove();
 }
 
-async function receiveOrders(){
+async function receiveOrders() {
     let receiveOrdersButton = document.querySelector('button.btn.featured-action.prevent-dbclick.has-tipsy-top.btn-primary');
-    if(!receiveOrdersButton){
+    if (!receiveOrdersButton) {
         let moreActions = document.querySelector('.dropdown.dropup.dropdown-in.featured-actions-menu button.btn.btn-menu-acoes.dropdown-toggle');
         moreActions.click();
         await sleep(1000);
         let secondReceiveOrdersButton = document.querySelector('.btnImportarPedidosSelecionados');
         secondReceiveOrdersButton.click();
-    }else{
+    } else {
         receiveOrdersButton.click();
     }
-    
+
 }
 
-function closeModal(){
+function closeModal() {
     let closeModalButton = document.querySelector('#bs-modal #modalPedidosEcommerceLote button.btn.btn-default.btn-ghost');
-    closeModalButton.click();
+    if (!closeModalButton) {
+        location.reload();
+    } else {
+        closeModalButton.click();
+    }
+
 }
 
 function isOrderGeneratorComplete() {
     let checkItems = document.querySelectorAll('.modal-body table tbody tr td:nth-child(4)');
-  
+
     for (let item of checkItems) {
-      if (item.querySelector('.fa.fa-fw.fa-spinner.fa-spin')) {
-        return false;
-      }
+        if (item.querySelector('.fa.fa-fw.fa-spinner.fa-spin')) {
+            return false;
+        }
     }
     return true;
+}
+
+async function login() {
+    let username = document.querySelector(".desktop input[name='username']");
+    let password = document.querySelector(".desktop input[name='password']");
+    let submitButton = document.querySelector(".desktop form > div:nth-child(3) button");
+
+    if (!!username && !!password && !!submitButton) {
+        await sleep(3000);
+        username.value = 'teste123@estoqueimports';
+
+        await sleep(1000);
+        password.value = 'Admin12345..';
+
+        await sleep(2000);
+        submitButton.click();
+        await sleep(2000);
+    }
+
+}
+
+async function isAnotherSessionWarnPage() {
+
+    console.log("Checking whether it has another session...");
+
+    await sleep(5000);
+
+    let confirmButton = document.querySelector("body.modal-open.ui-popup-open .modal.modal-ui-popup.modal-bottom.in button[popup-action='confirm']");
+    let pageTitle = document.querySelector("body.modal-open.ui-popup-open .modal.modal-ui-popup.modal-bottom.in h3");
+    let currentURL = window.location.hostname;
+
+    if (!pageTitle || !confirmButton) {
+        return false;
+    }
+
+    return !!confirmButton && pageTitle.textContent == "Este usuário já está logado em outra máquina" && currentURL == "erp.tiny.com.br";
+
+
 }
 
 async function waitForOrderGenerationCompletion() {
@@ -103,7 +163,7 @@ async function waitForOrderGenerationCompletion() {
                 console.log("Order Generation Completed!");
                 clearInterval(interval);
                 resolve();
-            }else{
+            } else {
                 console.log("Order Generation in Progress!");
             }
         }, 3000);
@@ -113,17 +173,34 @@ async function waitForOrderGenerationCompletion() {
 
 
 window.addEventListener("load", async function () {
+
     let target_url = "https://erp.tiny.com.br/lista_pedidos_ecommerce";
-    
+
     console.log('Starting automation loop...');
     addAlert();
     await sleep(5000);
 
-    if (window.location.href != target_url) {
+    if (window.location.hostname == "accounts.tiny.com.br") {
+        console.log('Logging in...');
+        await login();
+
+    } else if (await isAnotherSessionWarnPage()) {
+        console.log('Another session is already running...');
+        console.log('Continuing with this session...');
+
+        let confirmButton = document.querySelector("body.modal-open.ui-popup-open .modal.modal-ui-popup.modal-bottom.in button[popup-action='confirm']");
+        if (!!confirmButton) {
+            confirmButton.click();
+            await sleep(5000);
+        }
+
+    } else if (window.location.href != target_url) {
+        console.log('Wrong page! Navigating to the target page now...');
         window.location.href = target_url;
-        console.log("Tiny Automation: Done!");
+
     } else {
-        
+        console.log('Starting order generation...');
+
         await sleep(2000);
         ecommerces = getNavTabs();
 
@@ -138,7 +215,7 @@ window.addEventListener("load", async function () {
                 clickOnSelectAll();
                 await sleep(3000);
 
-                receiveOrders();
+                await receiveOrders();
                 console.log('Orders receive button clicked!');
 
                 await waitForOrderGenerationCompletion();
@@ -152,9 +229,14 @@ window.addEventListener("load", async function () {
         }
     }
 
-    console.log('Wait for 3 minutes...');
-    await sleep(180000);
-    console.log('Time is up!');
+    if (window.location.href == "https://erp.tiny.com.br/lista_pedidos_ecommerce" ||
+        window.location.href == "https://erp.tiny.com.br/lista_pedidos_ecommerce#") {
+        console.log('Wait for 3 minutes...');
+        await sleep(180000);
+        console.log('Time is up!');
+
+    }
+
     console.log('Automation loop finished!');
     console.log('Starting again...');
     window.location.href = target_url;
