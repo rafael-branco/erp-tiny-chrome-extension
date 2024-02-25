@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "ERP Tiny Automation",
     "description": "Runs a script on erp.tiny.com.br automatically when user installs the extension",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "content_scripts": [
       {
         "js": [
