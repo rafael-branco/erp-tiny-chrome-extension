@@ -209,6 +209,13 @@ window.addEventListener("load", async function () {
             ecommerces[i].click();
             await sleep(5000);
 
+            document.querySelector(".periodos a").click();
+            await sleep(1000);
+            document.querySelector("#opc-data").click();
+            await sleep(1000);
+            document.querySelector('.periodos .filter-controls .filter-apply').click()
+            await sleep(1000);
+
             if (!document.querySelector("#lista .empty-state-box")) {
                 console.log("Data exists!");
 
