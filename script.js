@@ -238,8 +238,8 @@ window.addEventListener("load", async function () {
 
     if (window.location.href == "https://erp.tiny.com.br/lista_pedidos_ecommerce" ||
         window.location.href == "https://erp.tiny.com.br/lista_pedidos_ecommerce#") {
-        console.log('Wait for 1 minute...');
-        await sleep(60000);
+        console.log('Wait for 1 minute and 30 seconds...');
+        await sleep(90000);
         console.log('Time is up!');
 
     }
